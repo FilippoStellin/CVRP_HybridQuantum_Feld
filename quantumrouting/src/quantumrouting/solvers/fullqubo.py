@@ -29,12 +29,12 @@ def solver_fn(params: FullQuboParams, backend_solver: Sampler) -> Callable:
         # Solve qubo
         response = backend_solver.sample_qubo(vrp_qubo, solver=neal.SimulatedAnnealingSampler())
 
-        return _unwrap_qbsolv_solution(problem=problem, result=response)
+        return _unwrap_fullqubo_solution(problem=problem, result=response)
 
     return _solve
 
 
-def _unwrap_qbsolv_solution(problem: CVRPProblem, result: SampleSet) -> CVRPSolution:
+def _unwrap_fullqubo_solution(problem: CVRPProblem, result: SampleSet) -> CVRPSolution:
 
     sample = list(result)[0]
 
