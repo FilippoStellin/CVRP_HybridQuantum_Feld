@@ -1,4 +1,4 @@
-# Quantum Routing
+# Quantum CVRP
 
 Implements the Capacited Vehicle Routing problem using a Quantum Annealer with the QUBO formulation.
 
