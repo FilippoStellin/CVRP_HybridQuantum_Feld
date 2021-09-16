@@ -12,8 +12,8 @@ from random import sample
 
 from src.quantumrouting.utils import compute_euclidean_distances
 
-INSTANCE_MAX_SIZE = 15
-MAX_NUM_VEHICLES = 5
+INSTANCE_MAX_SIZE = 10
+MAX_NUM_VEHICLES = 3
 
 
 @dataclass
@@ -22,13 +22,17 @@ class CVRPProblem:
 
     location_idx: np.ndarray
     """ Location idx identifiers"""
+    coords: np.ndarray
+    """Delivery coordinates"""
     costs: np.ndarray
     """Cost matrix, usually the distance between locations"""
-    capacities: np.ndarray
-    """Maximum vehicle capacities allowed"""
+    vehicle_capacity: int
+    """Maximum vehicle capacity"""
+    num_vehicles: int
+    """"Maximum number of vehicles"""
     demands: np.ndarray
     """Each demand size (dimension occupied in vehicle)"""
-    maximum_deliveries: np.ndarray
+    max_deliveries: int
     """Maximum number of deliveries for each vehicle"""
     depot_idx: int = 0
     """Depot idx identifier"""
@@ -45,8 +49,6 @@ class CVRPProblem:
             # For now, I'm sampling results
             sampled_packages = sample(packages, INSTANCE_MAX_SIZE)
 
-            number_packages = len(sampled_packages)
-
             coords = []
             demands = []
             for package_info in sampled_packages:
@@ -56,20 +58,25 @@ class CVRPProblem:
             coords = [[data['origin']['lat'], data['origin']['lng']]] + coords
             demands = [0] + demands
 
-
-
             distances = compute_euclidean_distances(coords=np.array(coords))
             return CVRPProblem(problem_identifier=data['name'],
                                location_idx=np.array(range(len(sampled_packages) + 1)),
+                               coords=np.array(coords),
                                costs=distances,
-                               capacities=np.ones((MAX_NUM_VEHICLES))*data['vehicle_capacity'],
+                               vehicle_capacity=data['vehicle_capacity'],
+                               num_vehicles=MAX_NUM_VEHICLES,
+                               max_deliveries=len(sampled_packages),
                                demands=np.array(demands),
-                               maximum_deliveries=np.ones((MAX_NUM_VEHICLES))*number_packages,
-                               depot_idx=0
-                               )
+                               depot_idx=0)
 
 
 @dataclass
 class CVRPSolution:
-    route: np.ndarray
+    """Problem identifier"""
+    problem_identifier: str
+    """ Computed routes"""
+    routes: np.ndarray
+    """ Total cost"""
     cost: int
+    """Total dimension occupied"""
+    total_demands: np.ndarray

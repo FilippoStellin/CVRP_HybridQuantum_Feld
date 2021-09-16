@@ -4,9 +4,9 @@ import argparse
 
 from dwave_qbsolv import QBSolv
 
-from src.quantumrouting.qubo import get_qubo
+from src.quantumrouting.analysis.plot import plot_route
 from src.quantumrouting.types import CVRPProblem
-from src.quantumrouting.solver import solve
+from src.quantumrouting.solvers.qbsolv import solve, QBSolvParams
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -28,9 +28,9 @@ if __name__ == "__main__":
         raise ValueError("input files do not match, use files or directories.")
 
     stems = instances.keys()
-
     solver = QBSolv()
+    params = QBSolvParams()
     for stem in stems:
-        result = solve(problem=instances[stem], solver=solver)
-        print(result)
-        #solution = solve(instances[stem])
+        problem = instances[stem]
+        result = solve(problem=problem, params=params)
+        plot_route(problem=problem, solution=result)

@@ -1,13 +1,10 @@
 from itertools import product, combinations
 
-import numpy as np
-
 from collections import defaultdict
 from typing import Dict, Tuple
 
+from src.quantumrouting.solvers.qbsolv import QBSolvParams
 from src.quantumrouting.types import CVRPProblem
-
-
 
 """
 cost_example =
@@ -23,7 +20,7 @@ def objective_function(problem: CVRPProblem, cost_const: int) -> Dict[Tuple, int
 
     start = 0
 
-    for vehicle in range(len(problem.capacities)):
+    for vehicle in range(problem.num_vehicles):
         min_final = start - 1
         max_final = start + len(problem.location_idx) - 2
 
@@ -61,7 +58,7 @@ def objective_function(problem: CVRPProblem, cost_const: int) -> Dict[Tuple, int
             variables[idx] += cost_const * cost
 
             # Capacity optimization
-            capacity = problem.capacities[vehicle]
+            capacity = problem.vehicle_capacity
             for (d1, d2) in combinations(problem.location_idx[1:], 2):
                 for (s1, s2) in combinations(range(start, max_final + 1), 2):
                     idx = ((s1, d1), (s2, d2))
@@ -78,7 +75,7 @@ def objective_function(problem: CVRPProblem, cost_const: int) -> Dict[Tuple, int
 def constraints(problem: CVRPProblem, constraint_const: int) -> Dict[Tuple, int]:
     constraints = defaultdict(int)
 
-    steps = int(np.sum(problem.maximum_deliveries))
+    steps = problem.num_vehicles*problem.max_deliveries
 
     # Only one step for one destination.
     for dest in problem.location_idx[1:]:
@@ -99,13 +96,12 @@ def constraints(problem: CVRPProblem, constraint_const: int) -> Dict[Tuple, int]
     return constraints
 
 
-def get_qubo(
+def wrap_qubo_problem(
         problem: CVRPProblem,
-        constraint_const: int = 10 ** 7,
-        cost_const: int = 1
+        params: QBSolvParams,
 ) -> Dict[Tuple[int, int], int]:
     """
-    Build the VRP problem in the qubo formulation.
+    Wrap the VRP problem in the qubo formulation.
 
     Objective function:
         Minimize the distance traveled by all vehicles.
@@ -120,7 +116,7 @@ def get_qubo(
 
     """
 
-    objective_repr = objective_function(problem=problem, cost_const=cost_const)
-    constraints_repr = constraints(problem=problem, constraint_const=constraint_const)
+    objective_repr = objective_function(problem=problem, cost_const=params.cost_const)
+    constraints_repr = constraints(problem=problem, constraint_const=params.constraint_const)
     return {k: objective_repr.get(k, 0) + constraints_repr.get(k, 0) for k in
             set(objective_repr) | set(constraints_repr)}
