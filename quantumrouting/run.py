@@ -28,17 +28,18 @@ if __name__ == "__main__":
     else:
         raise ValueError("input files do not match, use files or directories.")
 
-    stems = instances.keys()
-    #params = QBSolvParams()
-    #for stem in stems:
-    #    problem = instances[stem]
-    #    result = qbsolv_solve(problem=problem, params=params)
-    #    print(result)
-    #    plot_route(problem=problem, solution=result)
+    if args.solver == 'lk3':
+        params = lk3.LKHParams()
+        solver = lk3.solve(params=params)
 
-    params = lk3.LKHParams()
+    elif args.solver == 'qbsolv':
+        params = qbsolv.QBSolvParams()
+        solver = qbsolv.solve(params=params)
+
+    stems = instances.keys()
+
     for stem in stems:
         problem = instances[stem]
-        result = lk3.solve(problem=problem, params=params)
-        print(result)
-        plot_route(problem=problem, solution=result)
+        result = solver(problem=problem)
+        m = plot_route(problem=problem, solution=result)
+        m.save(f'{problem.problem_identifier}_{args.solver}.html')

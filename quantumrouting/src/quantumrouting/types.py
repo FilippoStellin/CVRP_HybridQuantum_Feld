@@ -18,7 +18,7 @@ MAX_NUM_VEHICLES = 3
 @dataclass
 class CVRPProblem:
     problem_identifier: str
-
+    """Identifier"""
     location_idx: np.ndarray
     """ Location idx identifiers"""
     coords: np.ndarray

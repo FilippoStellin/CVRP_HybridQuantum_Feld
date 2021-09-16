@@ -1,3 +1,4 @@
+from typing import Callable
 
 import neal
 import numpy as np
@@ -18,17 +19,21 @@ class QBSolvParams:
     """Cost Function multiplier for qubo."""
 
 
-def solve(problem: CVRPProblem, params: QBSolvParams) -> CVRPSolution:
+def solve(params: QBSolvParams) -> Callable:
     from src.quantumrouting.wrappers.qubo import wrap_qubo_problem
-    solver = QBSolv()
 
-    # Get qubo formulation problem
-    vrp_qubo = wrap_qubo_problem(problem=problem, params=params)
+    def _solve(problem: CVRPProblem) -> CVRPSolution:
+        solver = QBSolv()
 
-    # Solve qubo
-    response = solver.sample_qubo(vrp_qubo, solver=neal.SimulatedAnnealingSampler())
+        # Get qubo formulation problem
+        vrp_qubo = wrap_qubo_problem(problem=problem, params=params)
 
-    return _unwrap_qbsolv_solution(problem=problem, result=response)
+        # Solve qubo
+        response = solver.sample_qubo(vrp_qubo, solver=neal.SimulatedAnnealingSampler())
+
+        return _unwrap_qbsolv_solution(problem=problem, result=response)
+
+    return _solve
 
 
 def _unwrap_qbsolv_solution(problem: CVRPProblem, result: SampleSet) -> CVRPSolution:

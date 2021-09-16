@@ -14,6 +14,7 @@ argparse = "^1.4.0"
 dwave-neal = "^0.5.8"
 folium = "^0.12.1"
 lkh = "^1.0.4"
+tsplib95 = "^0.7.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

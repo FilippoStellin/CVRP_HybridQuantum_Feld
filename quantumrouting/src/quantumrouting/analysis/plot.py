@@ -1,5 +1,6 @@
 
 import folium
+from folium import Map
 
 from src.quantumrouting.types import CVRPSolution, CVRPProblem
 
@@ -22,7 +23,7 @@ MAP_COLORS = (
 )
 
 
-def plot_route(problem: CVRPProblem, solution: CVRPSolution) -> None:
+def plot_route(problem: CVRPProblem, solution: CVRPSolution) -> Map:
 
     routes = solution.routes
     m = folium.Map(
@@ -43,6 +44,4 @@ def plot_route(problem: CVRPProblem, solution: CVRPSolution) -> None:
             weight=1,
         ).add_to(m)
 
-    m.save("route_example.html")
-
-    return
+    return m
