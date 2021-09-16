@@ -5,31 +5,29 @@ import numpy as np
 
 from dataclasses import dataclass
 
-from dimod import SampleSet
+from dimod import SampleSet, Sampler
 from dwave_qbsolv import QBSolv
 
 from src.quantumrouting.types import CVRPProblem, CVRPSolution
 
 
 @dataclass
-class QBSolvParams:
+class FullQuboParams:
     constraint_const: int = 10 ** 7
     """Constraint multiplier for qubo."""
     cost_const: int = 1
     """Cost Function multiplier for qubo."""
 
 
-def solve(params: QBSolvParams) -> Callable:
+def solver_fn(params: FullQuboParams, backend_solver: Sampler) -> Callable:
     from src.quantumrouting.wrappers.qubo import wrap_qubo_problem
 
     def _solve(problem: CVRPProblem) -> CVRPSolution:
-        solver = QBSolv()
-
         # Get qubo formulation problem
         vrp_qubo = wrap_qubo_problem(problem=problem, params=params)
 
         # Solve qubo
-        response = solver.sample_qubo(vrp_qubo, solver=neal.SimulatedAnnealingSampler())
+        response = backend_solver.sample_qubo(vrp_qubo, solver=neal.SimulatedAnnealingSampler())
 
         return _unwrap_qbsolv_solution(problem=problem, result=response)
 

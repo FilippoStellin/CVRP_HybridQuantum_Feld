@@ -22,7 +22,7 @@ class LKHParams:
     """Scaling factor for distance matrices. """
 
 
-def solve(params: LKHParams) -> Callable:
+def solver_fn(params: LKHParams) -> Callable:
     from src.quantumrouting.wrappers.lk3 import wrapper_to_lk3
 
     def _solve(problem: CVRPProblem) -> CVRPSolution:

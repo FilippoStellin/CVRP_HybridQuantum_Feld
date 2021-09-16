@@ -3,8 +3,9 @@ from itertools import product, combinations
 from collections import defaultdict
 from typing import Dict, Tuple
 
-from src.quantumrouting.solvers.qbsolv import QBSolvParams
 from src.quantumrouting.types import CVRPProblem
+
+from src.quantumrouting.solvers.fullqubo import FullQuboParams
 
 """
 cost_example =
@@ -98,7 +99,7 @@ def constraints(problem: CVRPProblem, constraint_const: int) -> Dict[Tuple, int]
 
 def wrap_qubo_problem(
         problem: CVRPProblem,
-        params: QBSolvParams,
+        params: FullQuboParams,
 ) -> Dict[Tuple[int, int], int]:
     """
     Wrap the VRP problem in the qubo formulation.
