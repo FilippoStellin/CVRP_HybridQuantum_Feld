@@ -32,7 +32,7 @@ def plot_route(problem: CVRPProblem, solution: CVRPSolution) -> None:
     )
 
     for i, route in enumerate(routes):
-        origin = (problem.coords[route[0]][0], problem.coords[route[0]][1])
+        origin = (problem.coords[route[problem.depot_idx]][0], problem.coords[route[problem.depot_idx]][1])
         folium.CircleMarker(origin, color="red", radius=3, weight=5).add_to(m)
         route_color = MAP_COLORS[i % len(MAP_COLORS)]
         route_coords = [(problem.coords[idx][0], problem.coords[idx][1]) for idx in route]

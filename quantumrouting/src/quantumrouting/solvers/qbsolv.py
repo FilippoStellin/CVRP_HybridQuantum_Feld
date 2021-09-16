@@ -1,4 +1,3 @@
-from typing import Dict, Tuple
 
 import neal
 import numpy as np
@@ -20,7 +19,7 @@ class QBSolvParams:
 
 
 def solve(problem: CVRPProblem, params: QBSolvParams) -> CVRPSolution:
-    from src.quantumrouting.qubo import wrap_qubo_problem
+    from src.quantumrouting.wrappers.qubo import wrap_qubo_problem
     solver = QBSolv()
 
     # Get qubo formulation problem

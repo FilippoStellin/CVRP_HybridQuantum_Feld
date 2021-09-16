@@ -9,7 +9,6 @@ import numpy as np
 from dataclasses import dataclass
 from random import sample
 
-
 from src.quantumrouting.utils import compute_euclidean_distances
 
 INSTANCE_MAX_SIZE = 10
