@@ -10,7 +10,7 @@ from src.quantumrouting.types import CVRPProblem, CVRPSolution
 def solve(
         problem: CVRPProblem,
         solver: QBSolv
-) -> np.ndarray:
+) -> CVRPSolution:
 
     # Get qubo formulation problem
     vrp_qubo = get_qubo(problem=problem)

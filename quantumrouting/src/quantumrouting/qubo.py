@@ -108,10 +108,11 @@ def get_qubo(
     Build the VRP problem in the qubo formulation.
 
     Objective function:
-        minimize the distance traveled by all vehicles.
+        Minimize the distance traveled by all vehicles.
 
     Constraints:
-        bla
+        Each delivery must occurs only one once in routes.
+        Each position in route must be assigned to only one delivery.
 
     Constants:
         constraint_const - A: multiplier for constraints in qubo
