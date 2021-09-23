@@ -1,13 +1,10 @@
-import math
 
 import numpy as np
 
 EARTH_RADIUS_M = 6371000  # earth radius in meters
 
 
-def compute_euclidean_distances(coords: np.array) -> np.ndarray:
-    """Compute the euclidian distance."""
-
+def compute_distances(coords: np.array) -> np.ndarray:
     def tile(dims, repetitions):
         return (np.tile(dim, (repetitions, 1)) for dim in dims)
 

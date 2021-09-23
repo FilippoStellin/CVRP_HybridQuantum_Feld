@@ -7,11 +7,10 @@ from typing import Union
 import numpy as np
 
 from dataclasses import dataclass
-from random import sample
+from random import sample, seed
 
-from src.quantumrouting.utils import compute_euclidean_distances
 
-INSTANCE_MAX_SIZE = 10
+INSTANCE_MAX_SIZE = 20
 MAX_NUM_VEHICLES = 3
 
 
@@ -23,8 +22,6 @@ class CVRPProblem:
     """ Location idx identifiers"""
     coords: np.ndarray
     """Delivery coordinates"""
-    costs: np.ndarray
-    """Cost matrix, usually the distance between locations"""
     vehicle_capacity: int
     """Maximum vehicle capacity"""
     num_vehicles: int
@@ -46,6 +43,7 @@ class CVRPProblem:
             packages = data['deliveries']
             # We are not able to solve big instances with a exact approach.
             # For now, I'm sampling results
+            seed(a=INSTANCE_MAX_SIZE, version=2)
             sampled_packages = sample(packages, INSTANCE_MAX_SIZE)
 
             coords = []
@@ -54,14 +52,13 @@ class CVRPProblem:
                 coords.append([package_info['point']['lat'], package_info['point']['lng']])
                 demands.append(package_info['size'])
 
-            coords = [[data['origin']['lat'], data['origin']['lng']]] + coords
+            origin = data['origin']
+            coords = [[origin['lat'], origin['lng']]] + coords
             demands = [0] + demands
 
-            distances = compute_euclidean_distances(coords=np.array(coords))
             return CVRPProblem(problem_identifier=data['name'],
                                location_idx=np.array(range(len(sampled_packages) + 1)),
                                coords=np.array(coords),
-                               costs=distances,
                                vehicle_capacity=data['vehicle_capacity'],
                                num_vehicles=MAX_NUM_VEHICLES,
                                max_deliveries=len(sampled_packages),

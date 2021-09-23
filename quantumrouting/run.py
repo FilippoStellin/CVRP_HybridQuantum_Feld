@@ -6,6 +6,7 @@ import hybrid
 from dwave_qbsolv import QBSolv
 
 from src.quantumrouting.solvers import lk3
+from src.quantumrouting.solvers import partitionqubo
 from src.quantumrouting.solvers import fullqubo
 from src.quantumrouting.analysis.plot import plot_route
 from src.quantumrouting.types import CVRPProblem
@@ -54,6 +55,10 @@ if __name__ == "__main__":
     elif args.solver == 'fullqubo':
         params = fullqubo.FullQuboParams()
         solver = fullqubo.solver_fn(params=params, backend_solver=backend_solver)
+
+    elif args.solver == 'partitionfullqubo':
+        params = partitionqubo.KmeansPartitionFullQuboParams(fixed_num_clusters=5)
+        solver = partitionqubo.solver_fn(params=params, backend_solver=backend_solver)
 
     else:
         raise ValueError("Solver not Implemented..")

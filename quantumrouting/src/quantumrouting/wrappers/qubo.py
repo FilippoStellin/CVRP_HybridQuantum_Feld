@@ -7,6 +7,8 @@ from src.quantumrouting.types import CVRPProblem
 
 from src.quantumrouting.solvers.fullqubo import FullQuboParams
 
+from src.quantumrouting.distances import compute_distances
+
 """
 cost_example =
 array([[0.  , 0.27, 0.86, 0.34],
@@ -17,6 +19,9 @@ array([[0.  , 0.27, 0.86, 0.34],
 
 
 def objective_function(problem: CVRPProblem, cost_const: int) -> Dict[Tuple, int]:
+
+    distances = compute_distances(coords=problem.coords)
+
     variables = defaultdict(int)
 
     start = 0
@@ -34,7 +39,7 @@ def objective_function(problem: CVRPProblem, cost_const: int) -> Dict[Tuple, int
         for step in range(min_final + 1, max_final):
             for node1 in problem.location_idx:
                 for node2 in problem.location_idx:
-                    cost = problem.costs[node1][node2]
+                    cost = distances[node1][node2]
                     idx = ((step, node1), (step + 1, node2))
                     variables[idx] += cost * cost_const
 
@@ -46,7 +51,7 @@ def objective_function(problem: CVRPProblem, cost_const: int) -> Dict[Tuple, int
             # ((3, 0), (3, 0)): 0.0, ((3, 1), (3, 1)): 0.27
             # ((3, 2), (3, 2)): 0.86, ((3, 3), (3, 3)): 0.34
             idx = ((start, destination), (start, destination))
-            cost = problem.costs[problem.depot_idx][destination]
+            cost = distances[problem.depot_idx][destination]
             variables[idx] += cost_const * cost
 
             # Last destination and depot
@@ -55,7 +60,7 @@ def objective_function(problem: CVRPProblem, cost_const: int) -> Dict[Tuple, int
             # ((5, 0), (5, 0)) 0.0, ((5, 1), (5, 1)): 0.27
             # ((5, 2), (5, 2)): 0.86, ((5, 3), (5, 3)): 0.34
             idx = ((max_final, destination), (max_final, destination))
-            cost = problem.costs[destination][problem.depot_idx]
+            cost = distances[destination][problem.depot_idx]
             variables[idx] += cost_const * cost
 
             # Capacity optimization

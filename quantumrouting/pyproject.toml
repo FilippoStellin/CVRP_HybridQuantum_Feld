@@ -16,6 +16,7 @@ folium = "^0.12.1"
 lkh = "^1.0.4"
 tsplib95 = "^0.7.1"
 dwave-hybrid = "^0.6.3"
+scikit-learn = "^0.24.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

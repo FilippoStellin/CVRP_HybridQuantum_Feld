@@ -8,6 +8,8 @@ from dataclasses import dataclass
 
 from src.quantumrouting.types import CVRPProblem, CVRPSolution
 
+from src.quantumrouting.distances import compute_distances
+
 
 @dataclass
 class LKHParams:
@@ -53,6 +55,8 @@ def _unwrap_lkh_solution(problem: CVRPProblem, solution: List[int]) -> CVRPSolut
     https://github.com/loggi/loggibud/blob/master/loggibud/v1/baselines/task1/lkh_3.py#L70
     """
 
+    distances = compute_distances(coords=problem.coords)
+
     sample_solution = solution[0]
     # Add depot at the end of solution
     sample_solution.append(sample_solution[0])
@@ -88,11 +92,11 @@ def _unwrap_lkh_solution(problem: CVRPProblem, solution: List[int]) -> CVRPSolut
             continue
         prev = vehicle_route[0]
         for dest in vehicle_route[1:]:
-            cost += problem.costs[prev][dest]
+            cost += distances[prev][dest]
             demands_size += problem.demands[dest]
             prev = dest
         total_demands_size.append(demands_size)
-        cost += problem.costs[prev][problem.depot_idx]
+        cost += distances[prev][problem.depot_idx]
 
     return CVRPSolution(
         problem_identifier=problem.problem_identifier,

@@ -6,9 +6,10 @@ import numpy as np
 from dataclasses import dataclass
 
 from dimod import SampleSet, Sampler
-from dwave_qbsolv import QBSolv
 
 from src.quantumrouting.types import CVRPProblem, CVRPSolution
+
+from src.quantumrouting.distances import compute_distances
 
 
 @dataclass
@@ -35,6 +36,8 @@ def solver_fn(params: FullQuboParams, backend_solver: Sampler) -> Callable:
 
 
 def _unwrap_fullqubo_solution(problem: CVRPProblem, result: SampleSet) -> CVRPSolution:
+
+    distances = compute_distances(coords=problem.coords)
 
     sample = list(result)[0]
 
@@ -71,11 +74,11 @@ def _unwrap_fullqubo_solution(problem: CVRPProblem, result: SampleSet) -> CVRPSo
             continue
         prev = vehicle_route[0]
         for dest in vehicle_route[1:]:
-            cost += problem.costs[prev][dest]
+            cost += distances[prev][dest]
             demands_size += problem.demands[dest]
             prev = dest
         total_demands_size.append(demands_size)
-        cost += problem.costs[prev][problem.depot_idx]
+        cost += distances[prev][problem.depot_idx]
 
     return CVRPSolution(
         problem_identifier=problem.problem_identifier,
