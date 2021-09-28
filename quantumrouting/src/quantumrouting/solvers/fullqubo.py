@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 from dimod import SampleSet, Sampler
 
+from src.quantumrouting.solvers.utils import total_solution_cost, calculate_capacity_occupied
 from src.quantumrouting.types import CVRPProblem, CVRPSolution
 
 from src.quantumrouting.distances import compute_distances
@@ -86,36 +87,3 @@ def _unwrap_fullqubo_solution(problem: CVRPProblem, result: SampleSet) -> CVRPSo
     )
 
 
-def calculate_capacity_occupied(
-        demands: np.ndarray,
-        routes: List[List[int]],
-) -> List[int]:
-    total_capacity_occupied = []
-    for vehicle_route in routes:
-        demands_size = 0
-        for dest in vehicle_route[1:]:
-            demands_size += demands[dest]
-        total_capacity_occupied.append(demands_size)
-
-    return total_capacity_occupied
-
-
-def total_solution_cost(
-        depot_idx: int,
-        demands: np.ndarray,
-        routes: List[List[int]],
-        cost_matrix: np.ndarray
-) -> int:
-    cost = 0
-    for vehicle_route in routes:
-        demands_size = 0
-        if vehicle_route == []:
-            continue
-        prev = vehicle_route[0]
-        for dest in vehicle_route[1:]:
-            cost += cost_matrix[prev][dest]
-            demands_size += demands[dest]
-            prev = dest
-        cost += cost_matrix[prev][depot_idx]
-
-    return cost
