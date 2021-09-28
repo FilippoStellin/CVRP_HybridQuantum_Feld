@@ -79,7 +79,7 @@ if __name__ == "__main__":
     if args.type == 'vrp':
         qubo_problem_fn = wrap_vrp_qubo_problem(params=params)
 
-    elif args.solver == 'cvrp':
+    elif args.type == 'cvrp':
         qubo_problem_fn = wrap_cvrp_qubo_problem(params=params)
 
     else:

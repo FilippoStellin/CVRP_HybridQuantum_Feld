@@ -10,7 +10,6 @@ from dataclasses import dataclass
 from random import sample, seed
 
 
-INSTANCE_MAX_SIZE = 5
 MAX_NUM_VEHICLES = 1
 
 
@@ -34,7 +33,7 @@ class CVRPProblem:
     """Depot idx identifier"""
 
     @classmethod
-    def from_file(cls, path: Union[Path, str]) -> CVRPProblem:
+    def from_file(cls, path: Union[Path, str], sample_frac: float = 0.3) -> CVRPProblem:
         """Load dataclass instance from provided file path."""
 
         with open(path) as f:
@@ -43,12 +42,14 @@ class CVRPProblem:
             packages = data['deliveries']
             # We are not able to solve big instances with a exact approach.
             # For now, I'm sampling results
-            seed(a=INSTANCE_MAX_SIZE, version=2)
-            sampled_packages = sample(packages, INSTANCE_MAX_SIZE)
+            if sample_frac != 1:
+                seed(a=sample_frac, version=2)
+                total_packages = int(sample_frac*len(packages))
+                packages = sample(packages, total_packages)
 
             coords = []
             demands = []
-            for package_info in sampled_packages:
+            for package_info in packages:
                 coords.append([package_info['point']['lat'], package_info['point']['lng']])
                 demands.append(package_info['size'])
 
@@ -57,11 +58,11 @@ class CVRPProblem:
             demands = [0] + demands
 
             return CVRPProblem(problem_identifier=data['name'],
-                               location_idx=np.array(range(len(sampled_packages) + 1)),
+                               location_idx=np.array(range(len(packages) + 1)),
                                coords=np.array(coords),
                                vehicle_capacity=data['vehicle_capacity'],
                                num_vehicles=MAX_NUM_VEHICLES,
-                               max_deliveries=len(sampled_packages),
+                               max_deliveries=len(packages),
                                demands=np.array(demands),
                                depot_idx=0)
 

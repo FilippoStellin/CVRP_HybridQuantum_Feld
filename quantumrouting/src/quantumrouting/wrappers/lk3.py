@@ -2,6 +2,8 @@ import tsplib95
 from src.quantumrouting.solvers.lk3 import LKHParams
 from src.quantumrouting.types import CVRPProblem
 
+SCALE = 10_0000
+
 
 def wrapper_to_lk3(problem: CVRPProblem, params: LKHParams):
 
@@ -10,7 +12,7 @@ def wrapper_to_lk3(problem: CVRPProblem, params: LKHParams):
     }
 
     coords_section = {
-        idx + 1: coord for idx, coord in enumerate(problem.coords)
+        idx + 1: coord*SCALE for idx, coord in enumerate(problem.coords)
     }
 
     problem = tsplib95.models.StandardProblem(
