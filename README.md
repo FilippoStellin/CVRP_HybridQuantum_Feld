@@ -8,3 +8,8 @@ Using data from https://github.com/loggi/loggibud/blob/master/docs/quickstart.md
 
 
 ![vrp](https://user-images.githubusercontent.com/14301789/134584442-946fbe43-1e1d-4477-b4d7-0ef149548d9a.jpeg)
+
+
+## Run
+
+`poetry run python3 run.py  --instances PATH-TO-DATA --solver partitionfullqubo`
