@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, List
 
 import neal
 import numpy as np
@@ -66,23 +66,56 @@ def _unwrap_fullqubo_solution(problem: CVRPProblem, result: SampleSet) -> CVRPSo
                     break
 
     # Calculate Cost and total capacity occupied in each vehicle
-    cost = 0
-    total_demands_size = []
-    for vehicle_route in all_vehicles_results:
-        demands_size = 0
-        if vehicle_route == []:
-            continue
-        prev = vehicle_route[0]
-        for dest in vehicle_route[1:]:
-            cost += distances[prev][dest]
-            demands_size += problem.demands[dest]
-            prev = dest
-        total_demands_size.append(demands_size)
-        cost += distances[prev][problem.depot_idx]
+    cost = total_solution_cost(
+        depot_idx=problem.depot_idx,
+        demands=problem.demands,
+        routes=all_vehicles_results,
+        cost_matrix=distances
+    )
+
+    occupied_capacity = calculate_capacity_occupied(
+        demands=problem.demands,
+        routes=all_vehicles_results
+    )
 
     return CVRPSolution(
         problem_identifier=problem.problem_identifier,
         routes=np.array(all_vehicles_results),
         cost=cost,
-        total_demands=np.array(total_demands_size)
+        total_demands=np.array(occupied_capacity)
     )
+
+
+def calculate_capacity_occupied(
+        demands: np.ndarray,
+        routes: List[List[int]],
+) -> List[int]:
+    total_capacity_occupied = []
+    for vehicle_route in routes:
+        demands_size = 0
+        for dest in vehicle_route[1:]:
+            demands_size += demands[dest]
+        total_capacity_occupied.append(demands_size)
+
+    return total_capacity_occupied
+
+
+def total_solution_cost(
+        depot_idx: int,
+        demands: np.ndarray,
+        routes: List[List[int]],
+        cost_matrix: np.ndarray
+) -> int:
+    cost = 0
+    for vehicle_route in routes:
+        demands_size = 0
+        if vehicle_route == []:
+            continue
+        prev = vehicle_route[0]
+        for dest in vehicle_route[1:]:
+            cost += cost_matrix[prev][dest]
+            demands_size += demands[dest]
+            prev = dest
+        cost += cost_matrix[prev][depot_idx]
+
+    return cost

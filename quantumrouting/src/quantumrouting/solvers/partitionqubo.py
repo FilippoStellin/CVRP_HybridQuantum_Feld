@@ -43,7 +43,7 @@ def solver_fn(params: KmeansPartitionFullQuboParams, backend_solver: Sampler) ->
                         location_idx=np.array(range(len(idxs) + 1)),
                         coords=np.concatenate(([problem.coords[0]], problem.coords[idxs])),
                         vehicle_capacity=problem.vehicle_capacity,
-                        num_vehicles=5,
+                        num_vehicles=1,
                         max_deliveries=problem.max_deliveries,
                         demands=np.concatenate(([0], problem.demands[idxs])),
                         depot_idx=problem.depot_idx)

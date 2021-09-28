@@ -57,7 +57,7 @@ if __name__ == "__main__":
         solver = fullqubo.solver_fn(params=params, backend_solver=backend_solver)
 
     elif args.solver == 'partitionfullqubo':
-        params = partitionqubo.KmeansPartitionFullQuboParams(fixed_num_clusters=5)
+        params = partitionqubo.KmeansPartitionFullQuboParams(fixed_num_clusters=3)
         solver = partitionqubo.solver_fn(params=params, backend_solver=backend_solver)
 
     else:
