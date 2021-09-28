@@ -7,7 +7,15 @@ Based on the the implementation described in https://arxiv.org/pdf/1811.07403.pd
 Using data from https://github.com/loggi/loggibud/blob/master/docs/quickstart.md
 
 
+
+### VRP Resuts
 ![vrp](https://user-images.githubusercontent.com/14301789/134584442-946fbe43-1e1d-4477-b4d7-0ef149548d9a.jpeg)
+
+
+![image](https://user-images.githubusercontent.com/14301789/135166925-1379f3f5-11f9-4e9b-9141-44dd104c6862.png)
+
+
+### CVRP Results
 
 
 ## Run
