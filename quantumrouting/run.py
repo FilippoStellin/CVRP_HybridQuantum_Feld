@@ -1,10 +1,16 @@
+from enum import Enum
 from pathlib import Path
+from dataclasses import dataclass
 
 import argparse
 
 import hybrid
 from dwave_qbsolv import QBSolv
 
+from src.quantumrouting.wrappers.qubo import(
+    wrap_vrp_qubo_problem,
+    wrap_cvrp_qubo_problem
+)
 from src.quantumrouting.solvers import lk3
 from src.quantumrouting.solvers import partitionqubo
 from src.quantumrouting.solvers import fullqubo
@@ -12,11 +18,28 @@ from src.quantumrouting.analysis.plot import plot_route
 from src.quantumrouting.types import CVRPProblem
 
 
+@dataclass
+class SolverType(Enum):
+    FULLQUBO = 'fullqubo'
+    PARTITION_QUBO = 'partitionfullqubo'
+    LKH = 'lkh'
+
+
+PARAMS = {
+    SolverType.FULLQUBO.value:
+        fullqubo.FullQuboParams(),
+    SolverType.LKH.value:
+        lk3.LKHParams(),
+    SolverType.PARTITION_QUBO.value:
+        partitionqubo.KmeansPartitionFullQuboParams(fixed_num_clusters=3)
+}
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--instances", type=str, required=True)
     parser.add_argument("--solver", type=str, required=True)
+    parser.add_argument("--type", type=str, required=False)
     parser.add_argument("--backend", type=str,  default='cpu')
 
     args = parser.parse_args()
@@ -48,17 +71,31 @@ if __name__ == "__main__":
     else:
         raise ValueError("Backend solver not implemented.")
 
+    params = PARAMS.get(args.solver)
+
+    if not params:
+        raise ValueError("Params unset.")
+
+    if args.type == 'vrp':
+        qubo_problem_fn = wrap_vrp_qubo_problem(params=params)
+
+    elif args.solver == 'cvrp':
+        qubo_problem_fn = wrap_cvrp_qubo_problem(params=params)
+
+    else:
+        raise ValueError("Problem type not Implemented..")
+
     if args.solver == 'lkh':
-        params = lk3.LKHParams()
         solver = lk3.solver_fn(params=params)
 
     elif args.solver == 'fullqubo':
-        params = fullqubo.FullQuboParams()
-        solver = fullqubo.solver_fn(params=params, backend_solver=backend_solver)
+        solver = fullqubo.solver_fn(
+            backend_solver=backend_solver, qubo_problem_fn=qubo_problem_fn)
 
     elif args.solver == 'partitionfullqubo':
-        params = partitionqubo.KmeansPartitionFullQuboParams(fixed_num_clusters=3)
-        solver = partitionqubo.solver_fn(params=params, backend_solver=backend_solver)
+        solver = partitionqubo.solver_fn(
+            params=params, backend_solver=backend_solver,
+            qubo_problem_fn=qubo_problem_fn)
 
     else:
         raise ValueError("Solver not Implemented..")

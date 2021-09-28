@@ -20,8 +20,8 @@ class KmeansPartitionFullQuboParams:
     seed: int = 0
 
 
-def solver_fn(params: KmeansPartitionFullQuboParams, backend_solver: Sampler) -> Callable:
-    from src.quantumrouting.wrappers.qubo import wrap_qubo_problem
+def solver_fn(params: KmeansPartitionFullQuboParams,
+              qubo_problem_fn: Callable, backend_solver: Sampler) -> Callable:
 
     def _solve(problem: CVRPProblem) -> CVRPSolution:
 
@@ -53,7 +53,7 @@ def solver_fn(params: KmeansPartitionFullQuboParams, backend_solver: Sampler) ->
         all_routes, all_costs, all_demands = [], 0, []
         for problem in subproblems:
              # Get qubo formulation problem
-            vrp_qubo = wrap_qubo_problem(problem=problem, params=params)
+            vrp_qubo = qubo_problem_fn(problem=problem)
 
             # Solve qubo
             response = backend_solver.sample_qubo(vrp_qubo, solver=neal.SimulatedAnnealingSampler())

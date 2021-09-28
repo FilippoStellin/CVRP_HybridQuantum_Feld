@@ -21,12 +21,13 @@ class FullQuboParams:
     """Cost Function multiplier for qubo."""
 
 
-def solver_fn(params: FullQuboParams, backend_solver: Sampler) -> Callable:
-    from src.quantumrouting.wrappers.qubo import wrap_qubo_problem
+def solver_fn(
+        backend_solver: Sampler,
+        qubo_problem_fn: Callable) -> Callable:
 
     def _solve(problem: CVRPProblem) -> CVRPSolution:
         # Get qubo formulation problem
-        vrp_qubo = wrap_qubo_problem(problem=problem, params=params)
+        vrp_qubo = qubo_problem_fn(problem=problem)
 
         # Solve qubo
         response = backend_solver.sample_qubo(vrp_qubo, solver=neal.SimulatedAnnealingSampler())

@@ -1,7 +1,7 @@
 from itertools import product, combinations
 
 from collections import defaultdict
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Callable
 
 from src.quantumrouting.types import CVRPProblem
 
@@ -18,7 +18,7 @@ array([[0.  , 0.27, 0.86, 0.34],
 """
 
 
-def objective_function(problem: CVRPProblem, cost_const: int) -> Dict[Tuple, int]:
+def vrp_objective_function(problem: CVRPProblem, cost_const: int) -> Dict[Tuple, int]:
 
     distances = compute_distances(coords=problem.coords)
 
@@ -63,15 +63,29 @@ def objective_function(problem: CVRPProblem, cost_const: int) -> Dict[Tuple, int
             cost = distances[destination][problem.depot_idx]
             variables[idx] += cost_const * cost
 
-            # Capacity optimization
-            capacity = problem.vehicle_capacity
-            for (d1, d2) in combinations(problem.location_idx[1:], 2):
-                for (s1, s2) in combinations(range(start, max_final + 1), 2):
-                    idx = ((s1, d1), (s2, d2))
-                    idx2 = ((s1, d2), (s2, d1))
-                    cost = problem.demands[d1] * problem.demands[d2] / capacity ** 2
-                    variables[idx] += cost_const * cost
-                    variables[idx2] += cost_const * cost
+        start = max_final + 1
+
+    return variables
+
+
+def cvrp_objective_function(problem: CVRPProblem, cost_const: int) -> Dict[Tuple, int]:
+
+    variables = vrp_objective_function(problem=problem, cost_const=cost_const)
+
+    start = 0
+
+    for vehicle in range(problem.num_vehicles):
+        max_final = start + len(problem.location_idx) - 2
+
+        # Capacity optimization
+        capacity = problem.vehicle_capacity
+        for (d1, d2) in combinations(problem.location_idx[1:], 2):
+            for (s1, s2) in combinations(range(start, max_final + 1), 2):
+                idx = ((s1, d1), (s2, d2))
+                idx2 = ((s1, d2), (s2, d1))
+                cost = problem.demands[d1] * problem.demands[d2] / capacity ** 2
+                variables[idx] += cost_const * cost
+                variables[idx2] += cost_const * cost
 
         start = max_final + 1
 
@@ -102,10 +116,8 @@ def constraints(problem: CVRPProblem, constraint_const: int) -> Dict[Tuple, int]
     return constraints
 
 
-def wrap_qubo_problem(
-        problem: CVRPProblem,
-        params: FullQuboParams,
-) -> Dict[Tuple[int, int], int]:
+def wrap_vrp_qubo_problem(
+        params: FullQuboParams) -> Callable:
     """
     Wrap the VRP problem in the qubo formulation.
 
@@ -122,7 +134,43 @@ def wrap_qubo_problem(
 
     """
 
-    objective_repr = objective_function(problem=problem, cost_const=params.cost_const)
-    constraints_repr = constraints(problem=problem, constraint_const=params.constraint_const)
-    return {k: objective_repr.get(k, 0) + constraints_repr.get(k, 0) for k in
-            set(objective_repr) | set(constraints_repr)}
+    def _wrap_vrp_qubo_problem(problem: CVRPProblem) -> Dict[Tuple[int, int], int]:
+        objective_repr = vrp_objective_function(problem=problem, cost_const=params.cost_const)
+        constraints_repr = constraints(problem=problem, constraint_const=params.constraint_const)
+        return {
+            k: objective_repr.get(k, 0) + constraints_repr.get(k, 0)
+            for k in set(objective_repr) | set(constraints_repr)
+        }
+
+    return _wrap_vrp_qubo_problem
+
+
+def wrap_cvrp_qubo_problem(
+        params: FullQuboParams) -> Callable:
+    """
+    Wrap CVRP problem in the qubo formulation.
+
+    Objective function:
+        Minimize the distance traveled by all vehicles, respecting the capacity
+        for each vehicle.
+
+    Constraints:
+        Each delivery must occurs only one once in routes.
+        Each position in route must be assigned to only one delivery.
+
+    Constants:
+        constraint_const - A: multiplier for constraints in qubo
+        distance_const - B: multiplier for costs in qubo
+
+    """
+
+    def _wrap_cvrp_qubo_problem(problem: CVRPProblem) -> Dict[Tuple[int, int], int]:
+        objective_repr = cvrp_objective_function(problem=problem, cost_const=params.cost_const)
+        constraints_repr = constraints(problem=problem, constraint_const=params.constraint_const)
+        return {
+            k: objective_repr.get(k, 0) + constraints_repr.get(k, 0)
+            for k in set(objective_repr) | set(constraints_repr)
+        }
+
+    return _wrap_cvrp_qubo_problem
+

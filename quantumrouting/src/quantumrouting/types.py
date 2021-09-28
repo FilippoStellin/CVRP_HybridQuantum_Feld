@@ -10,8 +10,8 @@ from dataclasses import dataclass
 from random import sample, seed
 
 
-INSTANCE_MAX_SIZE = 10
-MAX_NUM_VEHICLES = 3
+INSTANCE_MAX_SIZE = 5
+MAX_NUM_VEHICLES = 1
 
 
 @dataclass
