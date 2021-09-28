@@ -9,11 +9,15 @@ Using data from https://github.com/loggi/loggibud/blob/master/docs/quickstart.md
 
 
 ### VRP Resuts
+
+Size: 20
+Vehicles: 1
+
 ![vrp](https://user-images.githubusercontent.com/14301789/134584442-946fbe43-1e1d-4477-b4d7-0ef149548d9a.jpeg)
 
 #### FullQuboSolver
 
-Size: 1
+Size: 20
 Vehicles: 1
 
 ![image](https://user-images.githubusercontent.com/14301789/135166925-1379f3f5-11f9-4e9b-9141-44dd104c6862.png)
