@@ -37,11 +37,10 @@ def vrp_objective_function(problem: CVRPProblem, cost_const: int) -> Dict[Tuple,
         # ((0, 0), (1, 0)): 0.0, ((0, 0), (1, 1)): 0.27,
         # ((0, 0), (1, 2)): 0.86, ((0, 0), (1, 3)): 0.34, ...)
         for step in range(min_final + 1, max_final):
-            for node1 in problem.location_idx:
-                for node2 in problem.location_idx:
-                    cost = distances[node1][node2]
-                    idx = ((step, node1), (step + 1, node2))
-                    variables[idx] += cost * cost_const
+            for node1, node2 in product(problem.location_idx, problem.location_idx):
+                idx = ((step, node1), (step + 1, node2))
+                cost = distances[node1][node2]
+                variables[idx] += cost * cost_const
 
         # First and Last destination to depot cost
         for destination in problem.location_idx:
@@ -52,7 +51,7 @@ def vrp_objective_function(problem: CVRPProblem, cost_const: int) -> Dict[Tuple,
             # ((3, 2), (3, 2)): 0.86, ((3, 3), (3, 3)): 0.34
             idx = ((start, destination), (start, destination))
             cost = distances[problem.depot_idx][destination]
-            variables[idx] += cost_const * cost
+            variables[idx] += cost * cost_const
 
             # Last destination and depot
             # ((2, 0), (2, 0)): 0.0, ((2, 1), (2, 1)): 0.27
@@ -97,21 +96,21 @@ def constraints(problem: CVRPProblem, constraint_const: int) -> Dict[Tuple, int]
 
     steps = problem.num_vehicles*problem.max_deliveries
 
-    # Only one step for one destination.
+    # One step for one destination.
     for dest in problem.location_idx[1:]:
         variables = [(step, dest) for step in range(steps)]
         for var in variables:
             constraints_dict[(var, var)] -= 2 * constraint_const
-        for field in product(variables, variables):
-            constraints_dict[field] += constraint_const
+        for var in product(variables, variables):
+            constraints_dict[var] += constraint_const
 
-    # Vehicles can wait in depot..
+    # Stay in depot..
     for step in range(0, int(steps)):
         variables = [(step, dest) for dest in problem.location_idx]
         for var in variables:
             constraints_dict[(var, var)] -= 2 * constraint_const
-        for field in product(variables, variables):
-            constraints_dict[field] += constraint_const
+        for var in product(variables, variables):
+            constraints_dict[var] += constraint_const
 
     return constraints_dict
 

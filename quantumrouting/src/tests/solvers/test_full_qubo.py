@@ -44,8 +44,10 @@ def test_vrp_full_qubo_solver(cvrp_problem):
     result = solver(problem=cvrp_problem)
 
     assert result.problem_identifier == 'bla'
-    assert (result.routes == np.array([[0, 5, 1, 3, 2, 4, 0]])).all()
+
+    result1 = (result.routes == np.array([[0, 4, 2, 3, 1, 5, 0]])).all()
+    result2 = (result.routes == np.array([[0, 5, 1, 3, 2, 4, 0]])).all()
+
+    assert result1 or result2
     assert result.total_demands == 40
     assert int(result.cost) == 12262
-
-

@@ -7,11 +7,6 @@ from dataclasses import dataclass
 
 from dimod import SampleSet, Sampler
 
-from src.quantumrouting.const import (
-    NUM_REPEATS,
-    SOLVER_LIMIT,
-    NUM_READS
-)
 from src.quantumrouting.solvers.utils import total_solution_cost, calculate_capacity_occupied
 from src.quantumrouting.types import CVRPProblem, CVRPSolution
 
@@ -36,11 +31,7 @@ def solver_fn(
 
         # Solve qubo
         response = backend_solver.sample_qubo(vrp_qubo,
-                                              solver=neal.SimulatedAnnealingSampler(),
-                                              num_repeats=NUM_REPEATS,
-                                              solver_limit=SOLVER_LIMIT,
-                                              num_reads=NUM_READS
-                                              )
+                                              solver=neal.SimulatedAnnealingSampler())
 
         return _unwrap_fullqubo_solution(problem=problem, result=response)
 
