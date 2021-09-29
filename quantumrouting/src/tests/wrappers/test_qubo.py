@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 
 from src.quantumrouting.types import CVRPProblem
-from src.quantumrouting.wrappers.qubo import vrp_objective_function
+from src.quantumrouting.wrappers.qubo import vrp_objective_function, constraints
 
 
 @pytest.fixture
@@ -20,7 +20,7 @@ def cvrp_problem():
                        coords=np.array(coords),
                        vehicle_capacity=100,
                        num_vehicles=max_num_vehicles,
-                       max_deliveries=5,
+                       max_deliveries=2,
                        demands=np.array([0, 10, 10]),
                        depot_idx=0)
 
@@ -39,7 +39,7 @@ def cvrp_problem_two_vehicles():
                        coords=np.array(coords),
                        vehicle_capacity=100,
                        num_vehicles=max_num_vehicles,
-                       max_deliveries=5,
+                       max_deliveries=2,
                        demands=np.array([0, 10, 10]),
                        depot_idx=0)
 
@@ -104,4 +104,76 @@ def test_vrp_objective_function_two_vehicles(cvrp_problem_two_vehicles):
     }
 
     result = vrp_objective_function(problem=cvrp_problem_two_vehicles, cost_const=1)
+    assert expected_qubo == result
+
+
+def test_constraints_qubo(cvrp_problem):
+    # For for each destination: ((i1, j), (i2, j)) -> customer j in position i1 (i2)
+    expected_qubo = {
+        ((0, 1), (0, 1)): -2,
+        ((1, 1), (1, 1)): -2,
+        ((0, 1), (1, 1)): 1,
+        ((1, 1), (0, 1)): 1,
+        ((0, 2), (0, 2)): -2,
+        ((1, 2), (1, 2)): -2,
+        ((0, 2), (1, 2)): 1,
+        ((1, 2), (0, 2)): 1,
+        ((0, 0), (0, 0)): -1,
+        ((0, 0), (0, 1)): 1,
+        ((0, 0), (0, 2)): 1,
+        ((0, 1), (0, 0)): 1,
+        ((0, 1), (0, 2)): 1,
+        ((0, 2), (0, 0)): 1,
+        ((0, 2), (0, 1)): 1,
+        ((1, 0), (1, 0)): -1,
+        ((1, 0), (1, 1)): 1,
+        ((1, 0), (1, 2)): 1,
+        ((1, 1), (1, 0)): 1,
+        ((1, 1), (1, 2)): 1,
+        ((1, 2), (1, 0)): 1,
+        ((1, 2), (1, 1)): 1
+    }
+
+    result = constraints(problem=cvrp_problem, constraint_const=1)
+
+    assert expected_qubo == result
+
+
+def test_constraints_qubo_two_vehicles(cvrp_problem_two_vehicles):
+    # For for each destination: ((i1, j), (i2, j)) -> customer j in position i1 (i2)
+    expected_qubo = {
+        ((0, 1), (0, 1)): -2, ((1, 1), (1, 1)): -2,
+        ((2, 1), (2, 1)): -2, ((3, 1), (3, 1)): -2,
+        ((0, 1), (1, 1)): 1, ((0, 1), (2, 1)): 1,
+        ((0, 1), (3, 1)): 1, ((1, 1), (0, 1)): 1,
+        ((1, 1), (2, 1)): 1, ((1, 1), (3, 1)): 1,
+        ((2, 1), (0, 1)): 1, ((2, 1), (1, 1)): 1,
+        ((2, 1), (3, 1)): 1, ((3, 1), (0, 1)): 1,
+        ((3, 1), (1, 1)): 1, ((3, 1), (2, 1)): 1,
+        ((0, 2), (0, 2)): -2, ((1, 2), (1, 2)): -2,
+        ((2, 2), (2, 2)): -2, ((3, 2), (3, 2)): -2,
+        ((0, 2), (1, 2)): 1, ((0, 2), (2, 2)): 1,
+        ((0, 2), (3, 2)): 1, ((1, 2), (0, 2)): 1,
+        ((1, 2), (2, 2)): 1, ((1, 2), (3, 2)): 1,
+        ((2, 2), (0, 2)): 1, ((2, 2), (1, 2)): 1,
+        ((2, 2), (3, 2)): 1, ((3, 2), (0, 2)): 1,
+        ((3, 2), (1, 2)): 1, ((3, 2), (2, 2)): 1,
+        ((0, 0), (0, 0)): -1, ((0, 0), (0, 1)): 1,
+        ((0, 0), (0, 2)): 1, ((0, 1), (0, 0)): 1,
+        ((0, 1), (0, 2)): 1, ((0, 2), (0, 0)): 1,
+        ((0, 2), (0, 1)): 1, ((1, 0), (1, 0)): -1,
+        ((1, 0), (1, 1)): 1, ((1, 0), (1, 2)): 1,
+        ((1, 1), (1, 0)): 1, ((1, 1), (1, 2)): 1,
+        ((1, 2), (1, 0)): 1, ((1, 2), (1, 1)): 1,
+        ((2, 0), (2, 0)): -1, ((2, 0), (2, 1)): 1,
+        ((2, 0), (2, 2)): 1, ((2, 1), (2, 0)): 1,
+        ((2, 1), (2, 2)): 1, ((2, 2), (2, 0)): 1,
+        ((2, 2), (2, 1)): 1, ((3, 0), (3, 0)): -1,
+        ((3, 0), (3, 1)): 1, ((3, 0), (3, 2)): 1,
+        ((3, 1), (3, 0)): 1, ((3, 1), (3, 2)): 1,
+        ((3, 2), (3, 0)): 1, ((3, 2), (3, 1)): 1
+    }
+
+    result = constraints(problem=cvrp_problem_two_vehicles, constraint_const=1)
+
     assert expected_qubo == result

@@ -93,7 +93,7 @@ def cvrp_objective_function(problem: CVRPProblem, cost_const: int) -> Dict[Tuple
 
 
 def constraints(problem: CVRPProblem, constraint_const: int) -> Dict[Tuple, int]:
-    constraints = defaultdict(int)
+    constraints_dict = defaultdict(int)
 
     steps = problem.num_vehicles*problem.max_deliveries
 
@@ -101,19 +101,19 @@ def constraints(problem: CVRPProblem, constraint_const: int) -> Dict[Tuple, int]
     for dest in problem.location_idx[1:]:
         variables = [(step, dest) for step in range(steps)]
         for var in variables:
-            constraints[(var, var)] -= 2 * constraint_const
+            constraints_dict[(var, var)] -= 2 * constraint_const
         for field in product(variables, variables):
-            constraints[field] += constraint_const
+            constraints_dict[field] += constraint_const
 
     # Vehicles can wait in depot..
     for step in range(0, int(steps)):
         variables = [(step, dest) for dest in problem.location_idx]
         for var in variables:
-            constraints[(var, var)] -= 2 * constraint_const
+            constraints_dict[(var, var)] -= 2 * constraint_const
         for field in product(variables, variables):
-            constraints[field] += constraint_const
+            constraints_dict[field] += constraint_const
 
-    return constraints
+    return constraints_dict
 
 
 def wrap_vrp_qubo_problem(
