@@ -33,7 +33,7 @@ class CVRPProblem:
     """Depot idx identifier"""
 
     @classmethod
-    def from_file(cls, path: Union[Path, str], sample_frac: float = 0.3) -> CVRPProblem:
+    def from_file(cls, path: Union[Path, str], sample_frac: float = 0.015) -> CVRPProblem:
         """Load dataclass instance from provided file path."""
 
         with open(path) as f:

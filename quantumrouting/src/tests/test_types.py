@@ -1,12 +1,11 @@
-import pytest
 
 import numpy as np
 
-from quantumrouting.src.quantumrouting.types import CVRPProblem
+from src.quantumrouting.types import CVRPProblem
 
 
 def test_cvrp_from_file():
-    path = 'tests/sample_test.json'
+    path = 'src/tests/sample_test.json'
     problem = CVRPProblem.from_file(path, 1)
 
     expected_coords = [
@@ -20,9 +19,13 @@ def test_cvrp_from_file():
 
     expected_idx = [0, 1, 2, 3, 4, 5]
 
+    expected_demands = [0, 10, 10, 7, 3, 10]
+
     assert problem.problem_identifier == "cvrp-0-df-0"
     assert (problem.location_idx == np.array(expected_idx)).all()
     assert (problem.coords == np.array(expected_coords)).all()
-    assert (problem.demands == np.array([0, 10, 10, 7, 3, 10])).all()
+    assert problem.vehicle_capacity == 180
+    assert (problem.demands == np.array(expected_demands)).all()
     assert problem.max_deliveries == 5
     assert problem.depot_idx == 0
+
