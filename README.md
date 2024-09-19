@@ -8,7 +8,7 @@ Using data from https://github.com/loggi/loggibud/blob/master/docs/quickstart.md
 
 
 
-### Resuts Sample
+### Results Sample
 
 
 #### FullQuboSolver
